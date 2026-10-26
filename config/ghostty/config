@@ -1,0 +1,15 @@
+# Basic standalone Ghostty configuration.
+
+font-family = monospace
+font-size = 12
+cursor-style = block
+cursor-style-blink = false
+window-padding-x = 10
+window-padding-y = 10
+shell-integration = detect
+
+background = #1a1a1a
+foreground = #ffffff
+selection-background = #333333
+selection-foreground = #ffffff
+cursor-color = #00ff99
