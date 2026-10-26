@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v fzf >/dev/null 2>&1; then
+  printf 'Missing dependency: fzf\nInstall it with: sudo pacman -S fzf\n' >&2
+  exit 1
+fi
+for cmd in pacman yay; do
+  if ! command -v "$cmd" >/dev/null 2>&1; then
+    printf 'Missing dependency: %s\n' "$cmd" >&2
+    exit 1
+  fi
+done
+
+source=$(printf '%s\n' 'Official repositories' 'AUR' | fzf --prompt='Package source > ' --height=40% --border) || exit 0
+
+case "$source" in
+  'Official repositories')
+    packages=$(pacman -Slq)
+    installer=(sudo pacman -S --needed)
+    ;;
+  AUR)
+    packages=$(yay -Slqa)
+    installer=(yay -S --needed)
+    ;;
+esac
+
+[[ -n "$packages" ]] || { printf 'No package names returned.\n' >&2; exit 1; }
+selection=$(printf '%s\n' "$packages" | fzf --multi --prompt='Select packages > ' --height=80% --border --header='Tab: mark multiple · Enter: continue · Esc: cancel') || exit 0
+[[ -n "$selection" ]] || exit 0
+mapfile -t selected <<< "$selection"
+
+printf 'Install %s from %s?\n' "${selected[*]}" "$source"
+read -r -p '[y/N] ' answer
+[[ "$answer" == [yY] || "$answer" == [yY][eE][sS] ]] || exit 0
+"${installer[@]}" "${selected[@]}"
