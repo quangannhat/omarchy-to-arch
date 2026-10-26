@@ -1,0 +1,105 @@
+#!/usr/bin/env python3
+"""Render collected Claude/Codex usage as Waybar-compatible JSON."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+from pathlib import Path
+from typing import Any
+
+
+def state_dir() -> Path:
+  return Path(os.environ.get("XDG_STATE_HOME", Path.home() / ".local/state")) / "agent-usage"
+
+
+def load_records(provider: str | None) -> list[dict[str, Any]]:
+  paths = [state_dir() / f"{provider}.json"] if provider else sorted(state_dir().glob("*.json"))
+  records = []
+  for path in paths:
+    try:
+      record = json.loads(path.read_text())
+      if isinstance(record, dict):
+        records.append(record)
+    except (OSError, json.JSONDecodeError):
+      continue
+  return records
+
+
+def percent(value: Any) -> int:
+  try:
+    raw = float(value or 0)
+    return round(raw * 100 if raw <= 1 else raw)
+  except (TypeError, ValueError):
+    return 0
+
+
+def short_label(label: str) -> str:
+  lower = label.lower()
+  if "week" in lower or "7-day" in lower:
+    return "7d"
+  if "session" in lower or "5-hour" in lower or "5h" in lower:
+    return "5h"
+  return label.replace(" window", "")
+
+
+def render_provider(record: dict[str, Any]) -> tuple[str, list[str], int]:
+  name = str(record.get("name") or record.get("id") or "AI")
+  limits = record.get("limits") if isinstance(record.get("limits"), list) else []
+  parts = []
+  tooltip = [name]
+  peak = 0
+
+  tier = str(record.get("tierLabel") or "").strip()
+  if tier:
+    tooltip[0] += f" ({tier})"
+
+  for limit in limits:
+    if not isinstance(limit, dict):
+      continue
+    used = percent(limit.get("percent"))
+    peak = max(peak, used)
+    label = str(limit.get("label") or "Limit")
+    parts.append(f"{short_label(label)} {used}%")
+    tooltip.append(f"{label}: {used}% used")
+
+  status = str(record.get("usageStatusText") or "").strip()
+  if status:
+    tooltip.append(status)
+
+  today = record.get("todayTotalTokens") or record.get("todayTokens")
+  if today:
+    tooltip.append(f"Today: {int(today):,} tokens")
+
+  provider_id = str(record.get("id") or name).lower()
+  text = f"{provider_id}: " + (" / ".join(parts) if parts else status or "local stats")
+  return text, tooltip, peak
+
+
+def main() -> int:
+  parser = argparse.ArgumentParser(description="Print Waybar JSON for AI subscription usage")
+  parser.add_argument("--provider", choices=("claude", "codex"))
+  args = parser.parse_args()
+
+  records = load_records(args.provider)
+  if not records:
+    print(json.dumps({"text": "AI: no data", "tooltip": "Run agent-usage-update", "class": "unknown"}))
+    return 0
+
+  texts = []
+  tooltips = []
+  peak = 0
+  for record in records:
+    text, tooltip, provider_peak = render_provider(record)
+    texts.append(text)
+    tooltips.extend(tooltip)
+    peak = max(peak, provider_peak)
+
+  css_class = "critical" if peak >= 90 else "warning" if peak >= 70 else "normal"
+  print(json.dumps({"text": " | ".join(texts), "tooltip": "\n".join(tooltips), "class": css_class}))
+  return 0
+
+
+if __name__ == "__main__":
+  raise SystemExit(main())

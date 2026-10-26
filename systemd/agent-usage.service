@@ -1,0 +1,6 @@
+[Unit]
+Description=Collect Claude Code and Codex usage
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/agent-usage-update
