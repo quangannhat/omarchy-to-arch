@@ -15,6 +15,32 @@ Omarchy Lua modules, `omarchy-*` commands, or the Omarchy shell. Set the
 installed on the target system. `Super + Space` launches Fuzzel's application
 search.
 
+The keyboard configuration matches the current system: US layout, Caps Lock
+as Escape, both Shift keys cancel Caps Lock, Num Lock enabled, a repeat rate of
+40, and a repeat delay of 250 ms. The touchpad uses natural scrolling.
+
+Vietnamese input uses Fcitx5 with Unikey. Install the same components and copy
+the versioned configuration:
+
+```sh
+sudo pacman -S fcitx5 fcitx5-gtk fcitx5-qt fcitx5-unikey
+mkdir -p ~/.config/fcitx5/conf
+cp config/fcitx5/config config/fcitx5/profile ~/.config/fcitx5/
+cp config/fcitx5/conf/xcb.conf ~/.config/fcitx5/conf/xcb.conf
+```
+
+The Hyprland configuration exports the current Fcitx environment variables
+and starts Fcitx once per session. Toggle English and Unikey with
+`Ctrl + Shift + Space`.
+
+To reproduce the console and X11 keyboard defaults, install the staged
+`vconsole.conf`. Review the target's console font before replacing an existing
+file:
+
+```sh
+sudo install -Dm644 config/system/vconsole.conf /etc/vconsole.conf
+```
+
 Install Ghostty and copy its configuration:
 
 ```sh
@@ -167,5 +193,6 @@ sudo pacman -S libreoffice-fresh zathura zathura-pdf-mupdf
 ```
 
 The current laptop defaults are represented by `monitor = , preferred, auto,
-auto`, `GDK_SCALE=2`, and `caps:escape`. Replace the monitor line with an
-explicit output, mode, position, and scale when adding a second display.
+auto`, `GDK_SCALE=2`, and the keyboard settings documented above. Replace the
+monitor line with an explicit output, mode, position, and scale when adding a
+second display.
