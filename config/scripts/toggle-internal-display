@@ -1,0 +1,19 @@
+#!/bin/sh
+set -eu
+
+internal="$(hyprctl monitors all -j | jq -r '[.[] | select(.name | startswith("eDP-")) | .name][0] // empty')"
+
+if [ -z "$internal" ]; then
+    notify-send "Display toggle" "No internal display detected"
+    exit 1
+fi
+
+disabled="$(hyprctl monitors all -j | jq -r --arg name "$internal" '.[] | select(.name == $name) | .disabled')"
+
+if [ "$disabled" = "true" ]; then
+    hyprctl keyword monitor "$internal, preferred, auto, auto"
+    notify-send "Display enabled" "$internal"
+else
+    hyprctl keyword monitor "$internal, disable"
+    notify-send "Display disabled" "$internal"
+fi

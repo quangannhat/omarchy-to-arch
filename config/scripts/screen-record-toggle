@@ -1,0 +1,15 @@
+#!/bin/sh
+set -eu
+
+directory="${XDG_VIDEOS_DIR:-$HOME/Videos}/Screen Recordings"
+mkdir -p "$directory"
+
+if pgrep -x wf-recorder >/dev/null; then
+    pkill -INT -x wf-recorder
+    notify-send "Screen recording stopped" "$directory"
+    exit 0
+fi
+
+file="$directory/recording-$(date +%Y-%m-%d-%H%M%S).mp4"
+wf-recorder -f "$file" >/dev/null 2>&1 &
+notify-send "Screen recording started" "$file"

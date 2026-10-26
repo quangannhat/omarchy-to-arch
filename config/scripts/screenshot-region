@@ -1,0 +1,11 @@
+#!/bin/sh
+set -eu
+
+directory="${XDG_PICTURES_DIR:-$HOME/Pictures}/Screenshots"
+mkdir -p "$directory"
+file="$directory/screenshot-$(date +%Y-%m-%d-%H%M%S).png"
+geometry="$(slurp)"
+
+grim -g "$geometry" "$file"
+wl-copy --type image/png < "$file"
+notify-send "Screenshot saved" "$file"
