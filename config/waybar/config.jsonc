@@ -1,0 +1,72 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 30,
+  "spacing": 8,
+  "modules-left": ["hyprland/workspaces"],
+  "modules-center": ["clock"],
+  "modules-right": ["tray", "custom/power-profile", "bluetooth", "network", "pulseaudio", "backlight", "battery"],
+
+  "hyprland/workspaces": {
+    "disable-scroll": true,
+    "all-outputs": true,
+    "format": "{icon}",
+    "format-icons": {
+      "default": "•",
+      "active": "●",
+      "urgent": "!"
+    }
+  },
+
+  "clock": {
+    "format": "{:%A %H:%M}",
+    "format-alt": "{:%d %B W%V %Y}",
+    "tooltip-format": "<tt>{calendar}</tt>"
+  },
+
+  "network": {
+    "format-wifi": "{icon} {essid}",
+    "format-ethernet": "wired",
+    "format-disconnected": "offline",
+    "format-icons": ["wifi", "wifi", "wifi", "wifi", "wifi"],
+    "on-click": "network-menu"
+  },
+
+  "pulseaudio": {
+    "format": "{icon} {volume}%",
+    "format-muted": "muted",
+    "format-icons": {
+      "default": ["vol", "vol", "vol"]
+    },
+    "scroll-step": 5,
+    "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+  },
+
+  "backlight": {
+    "format": "brightness {percent}%"
+  },
+
+  "battery": {
+    "format": "{icon} {capacity}%",
+    "format-charging": "charging {capacity}%",
+    "format-icons": ["battery", "battery", "battery", "battery", "battery", "battery", "battery", "battery", "battery", "battery", "battery"]
+  },
+
+  "bluetooth": {
+    "format": "bluetooth {status}",
+    "format-disabled": "bluetooth off",
+    "format-connected": "bluetooth {num_connections}",
+    "on-click": "bluetooth-menu"
+  },
+
+  "custom/power-profile": {
+    "exec": "powerprofilesctl get",
+    "interval": 30,
+    "format": "power {output}",
+    "on-click": "power-profile-cycle"
+  },
+
+  "tray": {
+    "spacing": 8
+  }
+}

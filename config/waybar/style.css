@@ -1,0 +1,53 @@
+* {
+  border: none;
+  border-radius: 0;
+  font-family: monospace;
+  font-size: 12px;
+  min-height: 0;
+}
+
+window#waybar {
+  background: #1a1a1a;
+  color: #ffffff;
+}
+
+tooltip {
+  background: #1a1a1a;
+  border: 2px solid #33ccff;
+}
+
+#workspaces,
+#clock,
+#tray,
+#bluetooth,
+#network,
+#pulseaudio,
+#backlight,
+#battery {
+  padding: 0 10px;
+}
+
+#workspaces button {
+  color: #888888;
+  padding: 0 5px;
+}
+
+#workspaces button.active {
+  color: #00ff99;
+}
+
+#workspaces button.urgent {
+  color: #ff5555;
+}
+
+#clock {
+  color: #ffffff;
+}
+
+#battery.warning {
+  color: #ffcc66;
+}
+
+#battery.critical:not(.charging) {
+  color: #ff5555;
+}
